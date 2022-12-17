@@ -37,6 +37,15 @@
                 </div>
 
                 <button id="pauseButton" class="w3-button button sidebar-element" onClick="togglePause()">Pause</button>
+                
+                <!-- Rounded switch -->
+                <div class="off-mode">
+                    <p class="p-off-mode" style="color: gray">Offline Mode</p>
+                    <label class="switch">
+                        <input id="offMode" type="checkbox" onClick="toggleOfflineMode()">
+                        <span class="slider round"></span>
+                    </label>
+                </div>
 
                 <div class="text-caption" id="coinDisplay">
                     <span></span>
