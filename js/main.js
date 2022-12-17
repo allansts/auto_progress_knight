@@ -58,7 +58,7 @@ var gameData = {
     completedTimes: 0,
     
     offlineTime: 0.0,
-    keepOfflineTime: false,
+    keepOfflineTime: true,
     offlineModeEnabled: true,
     lastLoggedDate: new Date().toUTCString(),
 }
@@ -1376,8 +1376,6 @@ function addOfflineMinutes(lastLoggedDate) {
 
     const diff = currentDate - lastDate ;
     var minutes = Math.floor((diff / 1000) / 60);
-
-    minutes = 150
 
     if (minutes <= 0) return;
 
