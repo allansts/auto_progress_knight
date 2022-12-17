@@ -7,6 +7,7 @@ function initUI() {
     setTheme(gameData.settings.theme)
 
     document.getElementById("offMode").checked = gameData.offlineModeEnabled;
+    document.getElementById("unOffMode").checked = gameData.keepOfflineTime;
 
     if (gameData.completedTimes > 0) {
         var elem = document.getElementById("completedTimes")
@@ -88,36 +89,6 @@ function createAllRows(categoryType, tableId) {
 
         const requiredRow = createRequiredRow(categoryName)
         table.append(requiredRow)
-    }
-}
-
-function updateQuickTaskDisplay() {
-    const task = gameData.currentJob
-    const quickTaskDisplayElement = document.getElementById("quickTaskDisplay")
-    const progressBar = quickTaskDisplayElement.getElementsByClassName("job")[0]
-    progressBar.getElementsByClassName("name")[0].textContent = (task.isHero ? "Great " : "") + task.name + " lvl " + task.level
-    const progressFill = progressBar.getElementsByClassName("progressFill")[0]
-
-    if (task.isFinished) {
-        progressFill.style.width = "100%"
-        progressFill.classList.add("progress-fill-finished")
-        progressBar.classList.add("progress-bar-finished")
-        var time = gameData.realtime / 3
-        var x = time - Math.floor(time)
-        x = (x < 0.5 ? x : 1 - x) * 2;
-        progressFill.style.opacity = x
-
-        progressFill.classList.add("current-hero")
-        progressBar.classList.remove("progress-bar-hero")
-
-    } else {
-        progressFill.style.opacity = 1
-        progressFill.style.width = task.xp / task.getMaxXp() * 100 + "%"
-        progressFill.classList.remove("progress-fill-finished")
-        progressBar.classList.remove("progress-bar-finished")
-
-        task.isHero ? progressFill.classList.add("current-hero") : progressFill.classList.remove("current-hero")
-        task.isHero ? progressBar.classList.add("progress-bar-hero") : progressBar.classList.remove("progress-bar-hero")
     }
 }
 
@@ -479,6 +450,13 @@ function updateText() {
     const currentDate = new Date()
     document.getElementById("playedDaysDisplay").textContent = format((currentDate.getTime() - date.getTime()) / (1000 * 3600 * 24), 2)
 
+    if (gameData.offlineModeEnabled && gameData.offlineTime > 0) {
+        document.getElementById("offlineTime").classList.remove("hidden")
+        document.getElementById("offlineTimeDisplay").textContent = formatTime(gameData.offlineTime)
+    } else {
+        document.getElementById("offlineTime").classList.add("hidden")
+    }
+
     if (gameData.rebirthOneCount > 0)
         document.getElementById("statsRebirth1").classList.remove("hidden")
     else
@@ -615,6 +593,8 @@ function hideCompletedRequirements() {
     for (const key in gameData.requirements) {
         const requirement = gameData.requirements[key]
         for (const element of requirement.elements) {
+            if (element == null) continue
+
             if (requirement.isCompleted()) {
                 element.classList.remove("hidden")
             } else {
@@ -651,7 +631,6 @@ function updateUI() {
     updateHeaderRows(jobCategories)
     updateHeaderRows(skillCategories)
 
-    updateQuickTaskDisplay()
     hideCompletedRequirements()
     updateText()  
 }

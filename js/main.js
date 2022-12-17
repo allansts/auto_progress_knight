@@ -15,8 +15,6 @@ var gameData = {
     evil: 0,
     essence: 0,
     paused: false,
-    offlineModeEnabled: true,
-    lastLoggedDate: new Date().toUTCString(),
     timeWarpingEnabled: true,
 
     rebirthOneCount: 0,
@@ -47,8 +45,6 @@ var gameData = {
         EssencePerSecond: 0,
         maxEssencePerSecond: 0,
         maxEssencePerSecondRt: 0,
-
-
     },
     active_challenge: "",
     challenges: {
@@ -59,7 +55,12 @@ var gameData = {
     },
     realtime: 0.0,
     realtimeRun: 0.0,
-    completedTimes: 0,    
+    completedTimes: 0,
+    
+    offlineTime: 0.0,
+    keepOfflineTime: false,
+    offlineModeEnabled: true,
+    lastLoggedDate: new Date().toUTCString(),
 }
 
 var tempData = {}
@@ -850,7 +851,10 @@ function togglePause() {
 
 function toggleOfflineMode() {
     gameData.offlineModeEnabled = !gameData.offlineModeEnabled
-    console.log("Offline Mode Enabled: " + offlineModeEnabled)
+}
+
+function toggleKeepOfflineTime() {
+    gameData.keepOfflineTime = !gameData.keepOfflineTime
 }
 
 function forceAutobuy() {
@@ -1119,6 +1123,16 @@ function rebirthReset(set_tab_to_jobs = true) {
         if (requirement.completed && permanentUnlocks.includes(key)) continue
         requirement.completed = false
     }
+
+    const isNull = updateTask == null
+
+    console.log("keepOfflineTime: " + gameData.keepOfflineTime + " is updateTask null: " + isNull)
+
+    if (!gameData.keepOfflineTime) {
+        console.log("Reset offline time and clearing the interval")
+        gameData.offlineTime = 0.0
+        clearInterval(updateTask)
+    }
 }
 
 function getLifespan() {
@@ -1363,28 +1377,32 @@ function addOfflineMinutes(lastLoggedDate) {
     const diff = currentDate - lastDate ;
     var minutes = Math.floor((diff / 1000) / 60);
 
+    minutes = 150
+
     if (minutes <= 0) return;
 
-    minutes = minutes > 360 ? 360 : minutes
-
-    // Resume game before update
+    // Pause game before update
     if (!isGamePaused) gameData.paused = true
 
     if (confirm('Do you want to catching up on the offline time (maximum last 6 hours)?')) {
         gameData.paused = false
 
+        minutes = minutes > 360 ? 360 : minutes
         var updateCount = minutes * 60 * updateSpeed
 
-        const updateTask = setInterval(
+        updateTask = setInterval(
             function() { 
-                if (updateCount <= 1) {
-                    clearTimeout(updateTask)
-                    console.log("clearTimeout(updateTask)")
-                }
+                if (updateCount <= 1) clearInterval(updateTask)
+
                 updateCount -= 1
+                gameData.offlineTime = updateCount / updateSpeed
                 update(false)
-            },0
+            },
+            0
         );
+    } else {
+        gameData.paused = isGamePaused
+        gameData.offlineTime = 0.0
     }
 }
 
@@ -1441,6 +1459,7 @@ function restartGame() {
     gameData.paused = true
     clearInterval(saveloop)
     clearInterval(gameloop)
+    clearInterval(updateTask)
 
     if (gameData.stats.fastestGame == null || gameData.realtimeRun < gameData.stats.fastestGame)
         gameData.stats.fastestGame = gameData.realtimeRun
@@ -1477,6 +1496,7 @@ function restartGame() {
 function resetGameData() {
     clearInterval(saveloop)
     clearInterval(gameloop)
+    clearInterval(updateTask)
     if (!confirm('Are you sure you want to reset the game?')) {
         gameloop = setInterval(update, 1000 / updateSpeed)
         saveloop = setInterval(saveGameData, 3000)
@@ -1758,6 +1778,8 @@ for (const key in gameData.requirements) {
     const requirement = gameData.requirements[key]
     tempData["requirements"][key] = requirement
 }
+
+var updateTask = null;
 
 loadGameData()
 
