@@ -6,6 +6,8 @@ function initUI() {
 
     setTheme(gameData.settings.theme)
 
+    document.getElementById("offMode").checked = gameData.offlineModeEnabled;
+
     if (gameData.completedTimes > 0) {
         var elem = document.getElementById("completedTimes")
         elem.textContent = "You completed the game " + gameData.completedTimes + " " +

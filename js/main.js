@@ -15,6 +15,8 @@ var gameData = {
     evil: 0,
     essence: 0,
     paused: false,
+    offlineModeEnabled: true,
+    lastLoggedDate: new Date().toUTCString(),
     timeWarpingEnabled: true,
 
     rebirthOneCount: 0,
@@ -846,6 +848,11 @@ function togglePause() {
     gameData.paused = !gameData.paused
 }
 
+function toggleOfflineMode() {
+    gameData.offlineModeEnabled = !gameData.offlineModeEnabled
+    console.log("Offline Mode Enabled: " + offlineModeEnabled)
+}
+
 function forceAutobuy() {
     autoBuyEnabled = true
 }
@@ -1261,6 +1268,7 @@ function replaceSaveDict(dict, saveDict) {
 }
 
 function saveGameData() {
+    if (gameData.offlineModeEnabled) gameData.lastLoggedDate = new Date() 
     localStorage.setItem("gameDataSave", JSON.stringify(gameData))
 }
 
@@ -1283,6 +1291,7 @@ function peekThemeFromSave() {
 function loadGameData() {
     try {
         const gameDataSave = JSON.parse(localStorage.getItem("gameDataSave"))
+        var lastLoggedDate = new Date().toUTCString()
 
         if (gameDataSave !== null) {
             replaceSaveDict(gameData, gameDataSave)
@@ -1292,7 +1301,9 @@ function loadGameData() {
             replaceSaveDict(gameData.settings, gameDataSave.settings)
             replaceSaveDict(gameData.stats, gameDataSave.stats)
             replaceSaveDict(gameData.challenges, gameDataSave.challenges)
+
             gameData = gameDataSave
+            lastLoggedDate = gameDataSave.lastLoggedDate
 
             if (gameData.coins == null)
                 gameData.coins = 0
@@ -1309,6 +1320,10 @@ function loadGameData() {
             if (gameData.settings.theme == null) {
                 gameData.settings.theme = 1
             }
+
+            if (gameData.lastLoggedDate == null) {
+                gameData.lastLoggedDate = new Date().toUTCString()
+            }
         }
     } catch (error) {
         console.error(error)
@@ -1317,13 +1332,67 @@ function loadGameData() {
     }
 
     assignMethods()
+
+    initGame(lastLoggedDate)
+}
+
+function initGame(lastLoggedDate) {
+    gameData.milestoneData = {}
+    createGameObjects(gameData.milestoneData, milestoneBaseData)
+
+    initUI()
+
+    setCustomEffects()
+    addMultipliers()
+
+    update()
+
+    setTab(gameData.settings.selectedTab)
+    setTabSettings("settingsTab")
+
+    addOfflineMinutes(lastLoggedDate)
+}
+
+function addOfflineMinutes(lastLoggedDate) {
+    if (!gameData.offlineModeEnabled) return;
+    const isGamePaused = Boolean(gameData.paused)
+
+    const currentDate = new Date()
+    const lastDate = new Date(lastLoggedDate)
+
+    const diff = currentDate - lastDate ;
+    var minutes = Math.floor((diff / 1000) / 60);
+
+    if (minutes <= 0) return;
+
+    minutes = minutes > 360 ? 360 : minutes
+
+    // Resume game before update
+    if (!isGamePaused) gameData.paused = true
+
+    if (confirm('Do you want to catching up on the offline time (maximum last 6 hours)?')) {
+        gameData.paused = false
+
+        var updateCount = minutes * 60 * updateSpeed
+
+        const updateTask = setInterval(
+            function() { 
+                if (updateCount <= 1) {
+                    clearTimeout(updateTask)
+                    console.log("clearTimeout(updateTask)")
+                }
+                updateCount -= 1
+                update(false)
+            },0
+        );
+    }
 }
 
 // TODO Not used currently. I assume we want to use this to update the game when the tab is focussed
 function addMinutes(count = 1) {
     for (let i = 0; i < count * 60 * updateSpeed; i++) {
         update(false)
-        if (i % 60 * updateSpeed == 0)
+        if (i % 60 * updateSpeed == 0) 
             updateUI()
     }
 }
@@ -1336,17 +1405,18 @@ function update(needUpdateUI = true) {
     autoPromote()
     autoBuy()  
     applyExpenses()
+
     for (const key in gameData.taskData) {
         const task = gameData.taskData[key]
         if ((task instanceof Skill || task instanceof Job) && gameData.requirements[key].completed) {
             performTask(task)
         }
     }
-    
+ 
     applyMilestones() 
     updateStats()
-    if (needUpdateUI)
-        updateUI()
+
+    if (needUpdateUI) updateUI()
 }
 
 function updateStats() {
@@ -1365,10 +1435,6 @@ function updateStats() {
             gameData.stats.maxEssencePerSecondRt = gameData.realtime
         }
     }
-
-    
-       
-
 }
 
 function restartGame() {
@@ -1694,19 +1760,6 @@ for (const key in gameData.requirements) {
 }
 
 loadGameData()
-
-gameData.milestoneData = {}
-createGameObjects(gameData.milestoneData, milestoneBaseData)
-
-initUI()
-
-setCustomEffects()
-addMultipliers()
-
-update()
-
-setTab(gameData.settings.selectedTab)
-setTabSettings("settingsTab")
 
 var gameloop = setInterval(update, 1000 / updateSpeed)
 var saveloop = setInterval(saveGameData, 3000)
