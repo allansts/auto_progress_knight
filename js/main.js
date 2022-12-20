@@ -58,6 +58,7 @@ var gameData = {
     completedTimes: 0,
     
     offlineTime: 0.0,
+    offlineMinutes: 0,
     keepOfflineTime: true,
     offlineModeEnabled: true,
     lastLoggedDate: new Date().toUTCString(),
@@ -985,8 +986,8 @@ function increaseDays() {
 }
 
 function increaseRealtime() {
-    if (!gameData.paused && isAlive()) 
-        gameData.realtime += 1.0 / updateSpeed;
+    if (!gameData.paused && isAlive()) gameData.realtime += 1.0 / updateSpeed;
+
     gameData.realtimeRun += 1.0 / updateSpeed;
 }
 
@@ -1337,6 +1338,11 @@ function loadGameData() {
 
             if (gameData.lastLoggedDate == null) {
                 gameData.lastLoggedDate = new Date().toUTCString()
+                // Creating the offline variables
+                gameData.offlineTime = 0.0
+                gameData.offlineMinutes = 0
+                gameData.keepOfflineTime = true
+                gameData.offlineModeEnabled = true
             }
         }
     } catch (error) {
@@ -1347,10 +1353,12 @@ function loadGameData() {
 
     assignMethods()
 
-    initGame(lastLoggedDate)
+    addOfflineMinutes(lastLoggedDate)
+
+    initGame()
 }
 
-function initGame(lastLoggedDate) {
+function initGame() {
     gameData.milestoneData = {}
     createGameObjects(gameData.milestoneData, milestoneBaseData)
 
@@ -1363,8 +1371,6 @@ function initGame(lastLoggedDate) {
 
     setTab(gameData.settings.selectedTab)
     setTabSettings("settingsTab")
-
-    addOfflineMinutes(lastLoggedDate)
 }
 
 function addOfflineMinutes(lastLoggedDate) {
@@ -1374,10 +1380,13 @@ function addOfflineMinutes(lastLoggedDate) {
     const currentDate = new Date()
     const lastDate = new Date(lastLoggedDate)
 
-    const diff = currentDate - lastDate ;
+    const diff = currentDate - lastDate;
     var minutes = Math.floor((diff / 1000) / 60);
 
-    if (minutes <= 0) return;
+    if (minutes <= 0) {
+        if (gameData.offlineTime > 1) updateOfflineTime();
+        return;
+    }
 
     // Pause game before update
     if (!isGamePaused) gameData.paused = true
@@ -1386,21 +1395,44 @@ function addOfflineMinutes(lastLoggedDate) {
         gameData.paused = false
 
         minutes = minutes > 360 ? 360 : minutes
-        var updateCount = minutes * 60 * updateSpeed
-
-        updateTask = setInterval(
-            function() { 
-                if (updateCount <= 1) clearInterval(updateTask)
-
-                updateCount -= 1
-                gameData.offlineTime = updateCount / updateSpeed
-                update(false)
-            },
-            0
-        );
+        gameData.offlineMinutes = minutes * 60 * updateSpeed
     } else {
         gameData.paused = isGamePaused
         gameData.offlineTime = 0.0
+        gameData.offlineMinutes = 0
+    }
+}
+
+function startOfflineTask() {
+    updateTask = setInterval(
+        function() { 
+            if (gameData.offlineMinutes <= 0) {
+                stopOfflineTask()
+                return;
+            }
+
+            gameData.offlineMinutes -= 1
+            gameData.offlineTime = gameData.offlineMinutes / updateSpeed
+            update(false)
+        },
+        0
+    );
+}
+
+function stopOfflineTask() {
+    clearInterval(updateTask)
+    updateTask = null
+}
+
+function updateOfflineTime() {
+    if (gameData.paused && gameData.offlineMinutes >= 1) {
+        stopOfflineTask()
+        return;
+    }
+
+    if (gameData.offlineMinutes >= 1 && updateTask == null) {
+        startOfflineTask()
+        return;
     }
 }
 
@@ -1408,8 +1440,7 @@ function addOfflineMinutes(lastLoggedDate) {
 function addMinutes(count = 1) {
     for (let i = 0; i < count * 60 * updateSpeed; i++) {
         update(false)
-        if (i % 60 * updateSpeed == 0) 
-            updateUI()
+        if (i % 60 * updateSpeed == 0) updateUI()
     }
 }
 
@@ -1417,10 +1448,10 @@ function update(needUpdateUI = true) {
     makeHeroes()
     increaseRealtime()
     increaseDays()
-    //setChallengeProgress()
     autoPromote()
     autoBuy()  
     applyExpenses()
+    updateOfflineTime()
 
     for (const key in gameData.taskData) {
         const task = gameData.taskData[key]

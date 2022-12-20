@@ -1,6 +1,9 @@
-version 1.0.2 / 17.12.2022
+Version 1.0.3 - 20/12/2022
+- Offline time will be paused when the game is paused
+
+Version 1.0.2 - 17/12/2022
 - Improved offline mode
 - Added option to disable offline time after rebirth
 
-version 1.0.1 / 16.12.2022
-* Added offline mode (allowing you to get a speed boost from the last 6 hours you were offline)
+Version 1.0.1 - 16/12/2022
+- Added offline mode: get a speed boost the last 6 offline hours
