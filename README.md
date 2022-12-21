@@ -20,4 +20,4 @@ The main goal of this mod is to make the game more automatic and to change UI to
 
 ## Auto Progress Knight
 
-* Offline mode: when you go offline and come back to play, the game will give maximum speed booster in the last 6 hours offline
+* Offline mode: when you go offline and come back to play, the game will give maximum speed booster for the last 6 hours offline
