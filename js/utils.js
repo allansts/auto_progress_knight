@@ -34,6 +34,11 @@ function format(number, decimals = 1) {
 }
 
 function formatCoins(coins, element) {
+    if (coins <= 0) {
+        element.children[0].textContent = "Free";
+        element.children[0].style.color = "#d3d3d3";
+    }
+
     const coinList = [
         { "name": "Rh", "color": "#D1D7D7", "value": 1e48 },
         { "name": "Pd", "color": "#79b9c7", "value": 1e45 },
