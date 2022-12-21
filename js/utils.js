@@ -46,9 +46,9 @@ function formatCoins(coins, element) {
         { "name": "k", "color": "#80ff00", "value": 1e14 },
         { "name": "h", "color": "#ff00ff", "value": 1e12 },
         { "name": "g", "color": "#8000ff", "value": 1e10 },
-        { "name": "f", "color": "#0000ff", "value": 1e8 },
+        { "name": "f", "color": "#9999ff", "value": 1e8 },
         { "name": "e", "color": "#00ff00", "value": 1e6 },
-        { "name": "d", "color": "#00ff80", "value": 1000 },
+        { "name": "d", "color": "#ffb1d7", "value": 1000 },
         { "name": "b", "color": "#00ffff", "value": 100 },
         { "name": "a", "color": "#0080ff", "value": 1 },
     ]
