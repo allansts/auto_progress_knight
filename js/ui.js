@@ -181,11 +181,9 @@ function updateMilestoneRows() {
 
 
         let desc = milestone.description
-        if (milestone.getEffect != null)
-            desc = "x" + format(milestone.getEffect(), 1) + " " + desc
+        if (milestone.getEffect != null) desc = "x" + format(milestone.getEffect(), 2) + " " + desc
 
-        if (milestone.baseData.effect != null)
-            desc = "x" + format(milestone.baseData.effect, 0) + " " + desc
+        if (milestone.baseData.effect != null) desc = "x" + format(milestone.baseData.effect, 0) + " " + desc
 
         row.getElementsByClassName("description")[0].textContent = desc
     }

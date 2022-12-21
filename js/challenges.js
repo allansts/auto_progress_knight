@@ -32,6 +32,9 @@ function setChallengeProgress() {
     if (gameData.active_challenge == "dance_with_the_devil") {
         gameData.challenges.dance_with_the_devil = Math.max(gameData.challenges.dance_with_the_devil, Math.max(0, getEvilGain() - 10))
     }
+    if (gameData.active_challenge == "legends_never_die") {
+        gameData.challenges.legends_never_die = Math.max(gameData.challenges.legends_never_die, gameData.taskData["Chairman"].level)
+    }
 }
 
 function getChallengeBonus(challenge_name, current = false) {
@@ -45,7 +48,9 @@ function getChallengeBonus(challenge_name, current = false) {
         return softcap(Math.pow((current ? getGameSpeed() : gameData.challenges.time_does_not_fly) + 1, 0.05), 2)
     }
     if (challenge_name == "dance_with_the_devil") {
-        return softcap(Math.pow((current ? Math.max(0, getEvilGain() - 10) : gameData.challenges.dance_with_the_devil) + 1, 0.1), 2, 0.15)
+        return softcap(Math.pow((current ? Math.max(0, getEvilGain() - 10) ** 2 : gameData.challenges.dance_with_the_devil ** 2) + 1, 0.08), 3, 0.4)
+    }
+    if (challenge_name == "legends_never_die") {
+        return softcap(Math.pow((current ? gameData.taskData["Chairman"].level : gameData.challenges.legends_never_die) + 1, 0.55), 50, 0.7)
     }
 }
-

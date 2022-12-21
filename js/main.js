@@ -215,7 +215,7 @@ milestoneBaseData = {
     "Transcendent Master": { name: "Transcendent Master", expense: 50000, tier: 4, description: "Essence gain" },
     "Eternal Time": { name: "Eternal Time", expense: 75000, tier: 5, description: "x2 Time Warping" },
     "Hell Portal": { name: "Hell Portal", expense: 120000, tier: 6, description: "Passively gain a huge amount of Evil" },
-    "Inferno": { name: "Inferno", expense: 170000, tier: 7, description: "x5 Evil gain" },
+    "Inferno": { name: "Inferno", expense: 170000, tier: 7, description: "x12 Evil gain" },
     "God's Blessings": { name: "God's Blessings", expense: 250000, tier: 8, description: "x10M Happiness" },
     "Faint Hope": { name: "Faint Hope", expense: 400000, tier: 9, description: "Essence gain (increases over time)" },
     "New Beginning": { name: "New Beginning", expense: 5000000, tier: 10, description: "Heroic jobs, skills and items are unlocked" },
@@ -688,10 +688,8 @@ function setCustomEffects() {
     faintHope.getEffect = function () {
         var mult = 1
         if (gameData.requirements["Faint Hope"].isCompleted()) {
-            let kickin = 1.1754 - 0.082 * Math.log(gameData.realtime)
-            if (kickin < 0.15)
-                kickin = 0.15
-            mult = 1 + (gameData.realtime * getCompletedGameSpeedBoost()) / (600 * kickin)
+            mult = 1 + 0.005 * (gameData.realtime * getCompletedGameSpeedBoost())
+            mult = mult ** 1.75;
         }
 
         return mult
@@ -708,6 +706,12 @@ function setCustomEffects() {
             }
             mult = 1 + 6 * countHeroes / 74
         }
+
+        if (gameData.essence > 50e6) mult *= 1.4;
+        if (gameData.essence > 100e6) mult *= 1.4;
+        if (gameData.essence > 200e6) mult *= 2;
+        if (gameData.essence > 500e6) mult *= 2;
+        if (gameData.essence > 750e6) mult *= 2;
 
         return mult
     }
@@ -775,7 +779,7 @@ function getEvilGain() {
 	const absoluteWish = gameData.taskData ["Absolute Wish"]
 	const oblivionEmbodiment = gameData.taskData ["Void Embodiment"]
     const yingYang = gameData.taskData["Yin Yang"]
-    const inferno = gameData.requirements["Inferno"].isCompleted() ? 5 : 1
+    const inferno = gameData.requirements["Inferno"].isCompleted() ? 12 : 1
     return evilControl.getEffect() * bloodMeditation.getEffect() * absoluteWish.getEffect() 
         * oblivionEmbodiment.getEffect() * yingYang.getEffect() * inferno
 }

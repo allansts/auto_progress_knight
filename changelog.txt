@@ -1,3 +1,9 @@
+Version 1.0.4 - 21/12/2022
+- Added more currencies (cosmetic)
+- Increased the Buff Essence Milestone 7 & 9 and the 4th challenge reward
+- Now the Heroic Milestones can boost Essence gain
+Note: Changes based on: https://github.com/veprogames/progress-knight-2-1-mod
+
 Version 1.0.3 - 20/12/2022
 - Offline time will be paused when the game is paused
 

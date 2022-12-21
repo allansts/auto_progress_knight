@@ -34,28 +34,41 @@ function format(number, decimals = 1) {
 }
 
 function formatCoins(coins, element) {
-    const platina = Math.floor(coins / 1e6)
-    const gold = Math.floor((coins - platina * 1e6) / 1e4)
-    const silver = Math.floor((coins - platina * 1e6 - gold * 1e4) / 100)
-    const copper = Math.floor(coins - platina * 1e6 - gold * 1e4 - silver * 100)
+    const coinList = [
+        { "name": "Rh", "color": "#D1D7D7", "value": 1e48 },
+        { "name": "Pd", "color": "#79b9c7", "value": 1e45 },
+        { "name": "Pt", "color": "#e5e4e2", "value": 1e40 },
+        { "name": "g", "color": "#E5C100", "value": 1e34 },
+        { "name": "s", "color": "#a8a8a8", "value": 1e30 },
+        { "name": "i", "color": "#a19d94", "value": 1e28 },
+        { "name": "c", "color": "#b87333", "value": 1e24 },
+        { "name": "l", "color": "#ff0080", "value": 1e18 },
+        { "name": "k", "color": "#80ff00", "value": 1e14 },
+        { "name": "h", "color": "#ff00ff", "value": 1e12 },
+        { "name": "g", "color": "#8000ff", "value": 1e10 },
+        { "name": "f", "color": "#0000ff", "value": 1e8 },
+        { "name": "e", "color": "#00ff00", "value": 1e6 },
+        { "name": "d", "color": "#00ff80", "value": 1000 },
+        { "name": "b", "color": "#00ffff", "value": 100 },
+        { "name": "a", "color": "#0080ff", "value": 1 },
+    ]
 
-    const money = {
-        "p": { "color": "#79b9c7", "showbefore": null, "value": platina },
-        "g": { "color": "#E5C100", "showbefore": 1e8, "value": gold },
-        "s": { "color": "#a8a8a8", "showbefore": 1e6, "value": silver },
-        "c": { "color": "#a15c2f", "showbefore": 1e4, "value": copper },
+    for (const c of element.children) {
+        c.textContent = "";
     }
 
-    let i = 0
-    for (const key in money) {
-        if ((money[key].showbefore == null || coins < money[key].showbefore) && (money[key].value > 0 || money[key].value == 0 && key == "c" && coins >= 0)) {
-            element.children[i].textContent = format(money[key].value, money[key].value < 1000 ? 0 : 1) + key
-            element.children[i].style.color = money[key].color
+    let elementIndex = 0
+    for (let i = 0; i < coinList.length; i++) {
+        const money = coinList[i];
+        const prev = coinList[i - 1];
+        const diff = prev ? prev.value / money.value : Infinity;
+        const amount = Math.floor(coins / money.value) % diff;
+        if (amount > 0) {
+            element.children[elementIndex].textContent = format(amount, amount < 1000 ? 0 : 1) + money.name
+            element.children[elementIndex].style.color = money.color
+            elementIndex++
         }
-        else {
-            element.children[i].textContent = ""            
-        }
-        i++
+        if (elementIndex >= 2 || amount >= 100) break;
     }
 }
 
