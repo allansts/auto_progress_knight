@@ -1,3 +1,7 @@
+Version 1.0.5 - 22/12/2022
+- Added a fifth challenge and reworked the previous ones
+- Fixed a few spelling mistakes
+
 Version 1.0.4 - 21/12/2022
 - Added more currencies (cosmetic)
 - Increased the Buff Essence Milestone 7 & 9 and the 4th challenge reward

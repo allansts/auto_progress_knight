@@ -39,7 +39,7 @@ function formatCoins(coins, element) {
     }
 
     if (coins <= 0) {
-        element.children[0].textContent = "Free";
+        element.children[0].textContent = "None";
         element.children[0].style.color = "#d3d3d3";
     }
 
