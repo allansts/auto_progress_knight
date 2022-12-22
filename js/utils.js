@@ -34,6 +34,10 @@ function format(number, decimals = 1) {
 }
 
 function formatCoins(coins, element) {
+    for (const c of element.children) {
+        c.textContent = "";
+    }
+
     if (coins <= 0) {
         element.children[0].textContent = "Free";
         element.children[0].style.color = "#d3d3d3";
@@ -46,21 +50,17 @@ function formatCoins(coins, element) {
         { "name": "g", "color": "#E5C100", "value": 1e34 },
         { "name": "s", "color": "#a8a8a8", "value": 1e30 },
         { "name": "i", "color": "#a19d94", "value": 1e28 },
-        { "name": "c", "color": "#b87333", "value": 1e24 },
+        { "name": "c", "color": "#a15c2f", "value": 1e24 },
         { "name": "l", "color": "#ff0080", "value": 1e18 },
-        { "name": "k", "color": "#80ff00", "value": 1e14 },
-        { "name": "h", "color": "#ff00ff", "value": 1e12 },
-        { "name": "g", "color": "#8000ff", "value": 1e10 },
-        { "name": "f", "color": "#9999ff", "value": 1e8 },
-        { "name": "e", "color": "#00ff00", "value": 1e6 },
-        { "name": "d", "color": "#ffb1d7", "value": 1000 },
-        { "name": "b", "color": "#00ffff", "value": 100 },
-        { "name": "a", "color": "#0080ff", "value": 1 },
+        { "name": "k", "color": "#79b9c7", "value": 1e14 },
+        { "name": "h", "color": "#E5C100", "value": 1e12 },
+        { "name": "g", "color": "#a8a8a8", "value": 1e10 },
+        { "name": "f", "color": "#a15c2f", "value": 1e8 },
+        { "name": "e", "color": "#79b9c7", "value": 1e6 },
+        { "name": "d", "color": "#E5C100", "value": 1000 },
+        { "name": "b", "color": "#a8a8a8", "value": 100 },
+        { "name": "a", "color": "#a15c2f", "value": 1 },
     ]
-
-    for (const c of element.children) {
-        c.textContent = "";
-    }
 
     let elementIndex = 0
     for (let i = 0; i < coinList.length; i++) {
@@ -73,7 +73,7 @@ function formatCoins(coins, element) {
             element.children[elementIndex].style.color = money.color
             elementIndex++
         }
-        if (elementIndex >= 2 || amount >= 100) break;
+        if (elementIndex >= 3 || amount >= 100) break;
     }
 }
 
